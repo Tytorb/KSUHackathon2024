@@ -1,4 +1,5 @@
 {
   "ecl.launchConfiguration": "WorkshopCluster",
-  "ecl.targetCluster": {}
+  "ecl.targetCluster": {},
+  "git.ignoreLimitWarning": true
 }

@@ -15,7 +15,7 @@
       "targetCluster": "thor",
       "abortSubmitOnError": true,
       "rejectUnauthorized": true,
-      "resultLimit": 3507,
+      "resultLimit": 90000,
       "timeoutSecs": 60,
       "user": "Bruh",
       "password": ""

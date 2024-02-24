@@ -1,8 +1,11 @@
 IMPORT $;
 HMK := $.File_AllData;
 
-EXPORT postJSON := OUTPUT(HMK.mc_byStateDS,,'FileName.JSON', JSON, OVERWRITE);
-OUTPUT(HTTPCALL('http://127.0.0.1:8000/addData/', 'POST', postJSON, DATASET(postJSON), JSON, LOG));
+postJSON := OUTPUT(HMK.mc_byStateDS,,'FileName.JSON', JSON, OVERWRITE);
+
+RESPONSE := HTTPCALL('http://127.0.0.1:8000/addData/', 'POST', postJSON, '', JSON, LOG);
+
+OUTPUT(OUTPUT(RESPONSE, NAMED('response')));
 
 // OUTPUT(HMK.unemp_byCountyDS,NAMED('Unemployment'));
 // OUTPUT(HMK.EducationDS,NAMED('Education'));

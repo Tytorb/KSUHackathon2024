@@ -1,7 +1,3 @@
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
-
 export default async function Noti(expoPushToken) {
   const message = {
     to: expoPushToken,
@@ -10,7 +6,7 @@ export default async function Noti(expoPushToken) {
     body: "And here is the body!",
     data: { someData: "goes here" },
   };
-  console.log(message);
+  console.log(message, "message");
 
   const test = await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
@@ -22,5 +18,5 @@ export default async function Noti(expoPushToken) {
     body: JSON.stringify(message),
   });
 
-  console.log(test);
+  // console.log(test);
 }

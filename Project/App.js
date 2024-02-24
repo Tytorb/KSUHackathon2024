@@ -1,160 +1,66 @@
-import { StatusBar } from "expo-status-bar";
-import { Button, StyleSheet, Text, View, Platform } from "react-native";
-import { NavigationContainer, useTheme } from "@react-navigation/native";
-import { DarkTheme, DefaultTheme } from "@react-navigation/native";
-import { useState, useEffect, useRef } from "react";
-import Noti from "./componets/Noti";
-import * as Location from "expo-location";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
+import { NavigationContainer } from "@react-navigation/native";
+import { DarkTheme } from "@react-navigation/native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import HomePage from "./componets/HomePage";
+import AboutUs from "./componets/AboutUs";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+const Tab = createMaterialBottomTabNavigator();
 
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Platform.OS === "android") {
-    Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-    });
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
-      return;
-    }
-    token = await Notifications.getExpoPushTokenAsync({
-      projectId: Constants.expoConfig.extra.eas.projectId,
-    });
-    console.log(token);
-  } else {
-    alert("Must use physical device for Push Notifications");
-  }
-
-  return token.data;
-}
-
-export default function App() {
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [notification, setNotification] = useState(false);
-  const notificationListener = useRef();
-  const responseListener = useRef();
-
-  useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
-
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
-      });
-
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
-      });
-
-    return () => {
-      Notifications.removeNotificationSubscription(
-        notificationListener.current
-      );
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
-
-  // Location.watchPositionAsync(
-  //   {
-  //     accuracy: Location.Accuracy.BestForNavigation,
-  //     timeInterval: 1000,
-  //     // distanceInterval: 0,
-  //   },
-  //   (loc) => {
-  //     console.log(loc);
-  //   }
-  // );
-
-  async function test() {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      setErrorMsg("Permission to access location was denied");
-      return;
-    }
-    let location = await Location.getCurrentPositionAsync({});
-    let city = await Location.reverseGeocodeAsync(location.coords);
-    setLocation(city);
-  }
-
-  useEffect(() => {
-    const config = async () => {
-      let resf = await Location.requestForegroundPermissionsAsync();
-      let resb = await Location.requestBackgroundPermissionsAsync();
-      if (resf.status != "granted" && resb.status !== "granted") {
-        console.log("Permission to access location was denied");
-      } else {
-        console.log("Permission to access location granted");
-      }
-    };
-    config();
-  }, []);
-
-  let text = "Waiting..";
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
-  }
-
-  useEffect(() => {
-    // console.log(location), [location];
-  });
-
+function Tabs() {
   return (
-    <NavigationContainer theme={DarkTheme}>
-      <View style={styles.container} theme={DarkTheme}>
-        <Text style={styles.text}>
-          Open up App.js to start working on your app!
-        </Text>
-        <View style={styles.button}>
-          <Button
-            title="CLICK ME NOW BRUH"
-            onPress={() => {
-              // test();
-              console.log("ignore");
-              Noti(expoPushToken);
-            }}
-          />
-        </View>
-        <StatusBar style="auto" />
-      </View>
-    </NavigationContainer>
+    <Tab.Navigator
+      initialRouteName="Home"
+      activeColor="green"
+      inactiveColor="green"
+      barStyle={{ backgroundColor: "black" }}
+    >
+      <Tab.Screen
+        name="da"
+        component={AboutUs}
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="alert-circle-outline"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Home"
+        component={HomePage}
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="home" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="About"
+        component={AboutUs}
+        options={{
+          tabBarLabel: "About",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="account-question"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-  },
-  text: { top: 500 },
-  button: { width: 225, top: 500 },
-});
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Tabs />
+    </NavigationContainer>
+  );
+}
